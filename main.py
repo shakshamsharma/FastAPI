@@ -71,6 +71,19 @@ def catagories(smartphone, ram=None):
             "Ram": ram
         }
 
+#Post Request
+
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+class Student(BaseModel):
+    name: str
+    age: int
+
+@app.post("/student")
+def create_student(student: Student):
+    return student
+
 
 
 
