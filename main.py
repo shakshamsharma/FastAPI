@@ -1,3 +1,4 @@
+"""
 #http://127.0.0.1:8000/users/saksham
 #uvicorn main:app --reload
 
@@ -84,8 +85,80 @@ class Student(BaseModel):
 def create_student(student: Student):
     return student
 
+"""
+
+#Student Management API
+#Post Method - To Add Students
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+# Temporary database
+students = []
+
+app = FastAPI()
+
+
+class Student(BaseModel):
+    name: str
+    age: int
+    course: str
+
+
+# CREATE
+@app.post("/students")
+def add_student(student: Student):
+    students.append(student)
+    return student
+
+
+# READ ALL
+@app.get("/students")
+def get_students():
+    return students
+
+
+# READ ONE
+@app.get("/students/{student_id}")
+def get_student(student_id: int):
+    if 0 <= student_id < len(students):
+        return students[student_id]
+
+    return {"Error": "Student Not Found"}
+
+
+# UPDATE
+@app.put("/students/{student_id}")
+def update_student(student_id: int, student: Student):
+    if 0 <= student_id < len(students):
+        students[student_id] = student
+        return {
+            "message": "Student Updated",
+            "Student": student
+        }
+
+    return {"Error": "Student Not Found"}
+
+
+# DELETE
+@app.delete("/students/{student_id}")
+def delete_student(student_id: int):
+    if 0 <= student_id < len(students):
+        deleted_student = students.pop(student_id)
+        return {
+            "message": "Student Deleted",
+            "Student": deleted_student
+        }
+
+    return {"Error": "Student Not Found"}
+
+
+    
+
+    
 
 
 
+    
 
+        
 
