@@ -87,11 +87,13 @@ def create_student(student: Student):
 
 """
 
+
+
 # ============================================================
 # STUDENT MANAGEMENT API
 # ============================================================
 
-
+"""
 # ------------------------------------------------------------
 # 1. IMPORTS
 # ------------------------------------------------------------
@@ -615,3 +617,137 @@ def delete_student(student_id: int):
 
     return {"Error": "Student Not Found"}
     # Student ID doesn't exist.
+"""
+
+
+
+#HTTP status code
+#Whenever your API receives a request, it sends back two important things:
+
+#The actual response/data
+#A status code telling the client what happened
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+
+# Temporary database
+students = []
+
+app = FastAPI()
+
+
+# Model for complete student
+class Student(BaseModel):
+    name: str
+    age: int
+    course: str
+
+
+# Model for PATCH
+class StudentUpdate(BaseModel):
+    name: str | None = None
+    age: int | None = None
+    course: str | None = None
+
+
+# =========================
+# CREATE - POST
+# =========================
+
+@app.post("/students", status_code=201)
+def add_student(student: Student):
+    students.append(student)
+    return student
+
+
+# =========================
+# READ ALL - GET
+# =========================
+
+@app.get("/students")
+def get_students():
+    return students
+
+
+# =========================
+# READ ONE - GET
+# =========================
+
+@app.get("/students/{student_id}")
+def get_student(student_id: int):
+
+    if 0 <= student_id < len(students):
+        return students[student_id]
+
+    raise HTTPException(
+        status_code=404,
+        detail="Student Not Found"
+    )
+
+
+# =========================
+# UPDATE ALL - PUT
+# =========================
+
+@app.put("/students/{student_id}")
+def update_student(student_id: int, student: Student):
+
+    if 0 <= student_id < len(students):
+        students[student_id] = student
+
+        return {
+            "message": "Student Updated",
+            "Student": student
+        }
+
+    raise HTTPException(
+        status_code=404,
+        detail="Student Not Found"
+    )
+
+
+# =========================
+# UPDATE PARTIALLY - PATCH
+# =========================
+
+@app.patch("/students/{student_id}")
+def patch_student(student_id: int, student: StudentUpdate):
+
+    if 0 <= student_id < len(students):
+
+        update_data = student.model_dump(exclude_unset=True)
+
+        for field, value in update_data.items():
+            setattr(students[student_id], field, value)
+
+        return {
+            "message": "Student Data Updated",
+            "Student": students[student_id]
+        }
+
+    raise HTTPException(
+        status_code=404,
+        detail="Student Not Found"
+    )
+
+
+# =========================
+# DELETE - DELETE
+# =========================
+
+@app.delete("/students/{student_id}")
+def delete_student(student_id: int):
+
+    if 0 <= student_id < len(students):
+
+        student_deleted = students.pop(student_id)
+
+        return {
+            "message": "Student Deleted",
+            "Student": student_deleted
+        }
+
+    raise HTTPException(
+        status_code=404,
+        detail="Student Not Found"
+    )
+        
