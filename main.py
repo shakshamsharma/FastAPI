@@ -750,4 +750,14 @@ def delete_student(student_id: int):
         status_code=404,
         detail="Student Not Found"
     )
+
+#Response model
+#What the API should RETURN.
+
+#One student → response_model=Student
+#Multiple students → response_model=list[Student]
+
+#HTTP error
+#name: str = Field(min_length=2, max_length=50)
+#age: int = Field(gt=0)
         
